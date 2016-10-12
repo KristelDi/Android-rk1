@@ -25,8 +25,19 @@ public class MainActivity extends AppCompatActivity {
         public void onReceive(final Context context, final Intent intent) {
             System.out.println(intent.getAction());
             String action = intent.getAction();
-            if ( action == "WHEATHER_ERROR_ACTION" ) {
-                TextView view1 = (TextView) findViewById(R.id.textView2);
+
+            TextView view1 = (TextView) findViewById(R.id.textView2);
+            TextView view2 = (TextView) findViewById(R.id.textView);
+
+            if (action.equals("WHEATHER_CHANGED_ACTION")) {
+                Intent service_intent = new Intent(MainActivity.this, WetherService.class);
+                startService(service_intent);
+                City city = WeatherStorage.getInstance(MainActivity.this).getCurrentCity();
+                Weather cur_weather = WeatherStorage.getInstance(MainActivity.this).getLastSavedWeather(city);
+                view1.setText(String.valueOf(cur_weather.getTemperature()));
+                view2.setText(cur_weather.getDescription());
+            }
+            if ( action.equals("WHEATHER_ERROR_ACTION")) {
                 view1.setText("Something went wrong!");
             }
         }
@@ -109,8 +120,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
+    protected void onDestroy() {
+        super.onDestroy();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver);
     }
 }
